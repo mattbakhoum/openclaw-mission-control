@@ -13,6 +13,7 @@ import {
   LayoutGrid,
   Microscope,
   Network,
+  Sparkles,
   Settings,
   Store,
   Tags,
@@ -70,6 +71,18 @@ export function DashboardSidebar() {
               Overview
             </p>
             <div className="mt-1 space-y-1">
+              <Link
+                href="/constellation"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
+                  pathname.startsWith("/constellation")
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
+                )}
+              >
+                <Sparkles className="h-4 w-4" />
+                Constellation
+              </Link>
               <Link
                 href="/dashboard"
                 className={cn(
