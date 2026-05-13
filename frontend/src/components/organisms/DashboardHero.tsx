@@ -5,11 +5,15 @@ import Link from "next/link";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { ArrowRight, Database, Microscope, Newspaper, Sparkles } from "lucide-react";
 
+import { AnimatedCounter } from "@/components/atoms/AnimatedCounter";
+import { ConstellationThumb } from "@/components/organisms/ConstellationThumb";
+
 type SparkPoint = { i: number; v: number };
 
 type Tile = {
   label: string;
-  value: string | null;
+  numericValue: number | null;
+  formatValue?: (n: number) => string;
   delta?: string;
   deltaTone?: "up" | "down" | "neutral";
   icon: typeof Database;
@@ -57,7 +61,7 @@ export function DashboardHero() {
     () => [
       {
         label: "Memory chunks",
-        value: memoryTotal !== null ? memoryTotal.toLocaleString() : null,
+        numericValue: memoryTotal,
         delta: memoryProjects !== null ? `${memoryProjects} projects` : undefined,
         deltaTone: "neutral",
         icon: Sparkles,
@@ -67,7 +71,7 @@ export function DashboardHero() {
       },
       {
         label: "Atlas corpus",
-        value: atlasTotal !== null ? atlasTotal.toLocaleString() : null,
+        numericValue: atlasTotal,
         delta: atlasTotal === 0 ? "pipeline pending" : "files indexed",
         deltaTone: "neutral",
         icon: Database,
@@ -77,7 +81,7 @@ export function DashboardHero() {
       },
       {
         label: "Trace events / day",
-        value: "0",
+        numericValue: 0,
         delta: "Langfuse wired",
         deltaTone: "neutral",
         icon: Microscope,
@@ -87,7 +91,8 @@ export function DashboardHero() {
       },
       {
         label: "Feed articles",
-        value: "157+",
+        numericValue: 157,
+        formatValue: (n) => `${n.toLocaleString()}+`,
         delta: "28 active feeds",
         deltaTone: "up",
         icon: Newspaper,
@@ -100,7 +105,11 @@ export function DashboardHero() {
   );
 
   return (
-    <div className="mb-6 grid gap-3 md:grid-cols-4">
+    <div className="mb-6 grid gap-3 md:grid-cols-12">
+      <div className="md:col-span-4">
+        <ConstellationThumb />
+      </div>
+      <div className="grid gap-3 md:col-span-8 md:grid-cols-2">
       {tiles.map((t) => {
         const Icon = t.icon;
         const body = (
@@ -123,7 +132,7 @@ export function DashboardHero() {
               className="font-mono text-3xl font-semibold tabular-nums text-strong"
               style={{ letterSpacing: "-0.02em" }}
             >
-              {t.value ?? <span className="text-quiet">…</span>}
+              <AnimatedCounter value={t.numericValue} format={t.formatValue} />
             </p>
             <div className="mt-1 flex items-end justify-between gap-2">
               {t.delta ? (
@@ -168,6 +177,7 @@ export function DashboardHero() {
           <div key={t.label}>{body}</div>
         );
       })}
+      </div>
     </div>
   );
 }
