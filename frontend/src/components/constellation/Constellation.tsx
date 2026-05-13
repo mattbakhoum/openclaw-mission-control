@@ -79,8 +79,8 @@ function NodeCloud({
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const colorObj = useMemo(() => new THREE.Color(), []);
-  const baseScale = 0.55;
-  const hoverScale = 1.45;
+  const baseScale = 0.95;
+  const hoverScale = 2.0;
 
   useEffect(() => {
     if (!meshRef.current) return;
@@ -305,8 +305,34 @@ export function Constellation() {
     [hoveredId, data],
   );
 
+  // Project filter: which clusters are visible. Default = all on.
+  const [activeProjects, setActiveProjects] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (data) setActiveProjects(new Set(data.stats.projects));
+  }, [data]);
+
+  const visibleNodes = useMemo(() => {
+    if (!data) return [];
+    if (activeProjects.size === 0) return data.nodes;
+    return data.nodes.filter((n) => activeProjects.has(n.project));
+  }, [data, activeProjects]);
+
+  const toggleProject = (p: string) => {
+    setActiveProjects((prev) => {
+      const next = new Set(prev);
+      if (next.has(p)) next.delete(p);
+      else next.add(p);
+      return next;
+    });
+  };
+
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-black text-white">
+    <div
+      className="relative h-screen w-full overflow-hidden bg-black text-white"
+      // Pause auto-rotate while pointer is anywhere on the canvas so click
+      // targets don't slide out from under the cursor.
+      onPointerDown={() => setAutoRotate(false)}
+    >
       {/* Backdrop gradient */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(224,133,96,0.18),transparent_60%),radial-gradient(ellipse_at_bottom,rgba(34,28,21,0.6),transparent_55%)]" />
       {/* CRT-ish scanline + corner ticks for the OS feel */}
@@ -346,9 +372,9 @@ export function Constellation() {
 
           {data ? (
             <>
-              <EdgeLines nodes={data.nodes} colorMode={colorMode} />
+              <EdgeLines nodes={visibleNodes} colorMode={colorMode} />
               <NodeCloud
-                nodes={data.nodes}
+                nodes={visibleNodes}
                 colorMode={colorMode}
                 hoveredId={hoveredId}
                 onHover={setHoveredId}
@@ -381,7 +407,7 @@ export function Constellation() {
           enableZoom
           enableRotate
           minDistance={20}
-          maxDistance={250}
+          maxDistance={350}
           onStart={() => setAutoRotate(false)}
         />
       </Canvas>
@@ -468,29 +494,40 @@ export function Constellation() {
             </div>
           </div>
 
-          {/* Legend */}
+          {/* Legend + project filter — click a project to toggle its cluster */}
           <div className="pointer-events-auto rounded-lg border border-white/10 bg-black/40 p-3 backdrop-blur">
             <div className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-white/40">
-              Legend ({colorMode})
+              {colorMode === "project" ? "Filter / Legend" : "Legend"} ({colorMode})
             </div>
             <div className="flex flex-col gap-1 text-[11px] text-white/80">
-              {(colorMode === "project" ? data.stats.projects : data.stats.agents).map((key) => (
-                <div key={key} className="flex items-center gap-2">
-                  <span
-                    className="h-2 w-2 rounded-full"
-                    style={{
-                      background:
-                        (colorMode === "project" ? PROJECT_COLORS : AGENT_COLORS)[key] ??
-                        "#9d8fb8",
-                      boxShadow: `0 0 8px ${
-                        (colorMode === "project" ? PROJECT_COLORS : AGENT_COLORS)[key] ??
-                        "#9d8fb8"
-                      }`,
-                    }}
-                  />
-                  <span className="font-mono">{key}</span>
-                </div>
-              ))}
+              {(colorMode === "project" ? data.stats.projects : data.stats.agents).map((key) => {
+                const isOn = colorMode !== "project" || activeProjects.has(key);
+                const color =
+                  (colorMode === "project" ? PROJECT_COLORS : AGENT_COLORS)[key] ?? "#9d8fb8";
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => colorMode === "project" && toggleProject(key)}
+                    className={`flex items-center gap-2 rounded px-1 py-0.5 text-left transition ${
+                      colorMode === "project"
+                        ? isOn
+                          ? "hover:bg-white/5"
+                          : "opacity-30 hover:opacity-60"
+                        : ""
+                    }`}
+                  >
+                    <span
+                      className="h-2 w-2 rounded-full"
+                      style={{
+                        background: color,
+                        boxShadow: isOn ? `0 0 8px ${color}` : "none",
+                      }}
+                    />
+                    <span className="font-mono">{key}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
