@@ -110,6 +110,18 @@ export function DashboardSidebar() {
                 Dashboard
               </Link>
               <Link
+                href="/bots"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
+                  pathname.startsWith("/bots")
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
+                )}
+              >
+                <Bot className="h-4 w-4" />
+                Bots
+              </Link>
+              <Link
                 href="/activity"
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",

@@ -143,7 +143,16 @@ function* iterFrames(buffer: string): Generator<string, void, void> {
   }
 }
 
-export function BotActivityStream() {
+export type BotActivityStreamProps = {
+  /**
+   * Optional bot/container filter. When provided, only events whose
+   * `bot` or `container` matches the filter are shown. Default: show
+   * every event (existing dashboard behavior).
+   */
+  botFilter?: string;
+};
+
+export function BotActivityStream({ botFilter }: BotActivityStreamProps = {}) {
   const [events, setEvents] = useState<BotEvent[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [now, setNow] = useState<number>(() => Date.now());
@@ -268,7 +277,17 @@ export function BotActivityStream() {
     el.scrollTop = 0;
   }, [events, autoScroll]);
 
-  const visible = useMemo(() => events.slice(0, MAX_VISIBLE), [events]);
+  // When `botFilter` is set, narrow to events for that bot/container.
+  // Filtering happens after retention so the user sees stable history
+  // for one bot even when other bots dominate the global stream.
+  const filtered = useMemo(() => {
+    if (!botFilter) return events;
+    return events.filter(
+      (event) => event.bot === botFilter || event.container === botFilter,
+    );
+  }, [events, botFilter]);
+
+  const visible = useMemo(() => filtered.slice(0, MAX_VISIBLE), [filtered]);
 
   const statusBadge = useMemo(() => {
     if (status === "open" && !isIdle) {

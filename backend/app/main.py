@@ -22,6 +22,7 @@ from app.api.board_onboarding import router as board_onboarding_router
 from app.api.board_webhooks import router as board_webhooks_router
 from app.api.boards import router as boards_router
 from app.api.bot_events import router as bot_events_router
+from app.api.bots import router as bots_router
 from app.api.gateway import router as gateway_router
 from app.api.gateways import router as gateways_router
 from app.api.memory_search import router as memory_search_router
@@ -73,6 +74,14 @@ OPENAPI_TAGS = [
         "description": (
             "Live bot activity stream sourced from openclaw-* docker logs via "
             "the bot-events-tap ring buffer. Server-Sent Events only."
+        ),
+    },
+    {
+        "name": "bots",
+        "description": (
+            "Bot control surface — container status, event aggregates, and "
+            "memory metadata. Read-only in Phase 1; action endpoints land "
+            "in Phase 2."
         ),
     },
     {
@@ -558,6 +567,7 @@ api_v1.include_router(agent_router)
 api_v1.include_router(agents_router)
 api_v1.include_router(activity_router)
 api_v1.include_router(bot_events_router)
+api_v1.include_router(bots_router)
 api_v1.include_router(gateway_router)
 api_v1.include_router(gateways_router)
 api_v1.include_router(memory_search_router)

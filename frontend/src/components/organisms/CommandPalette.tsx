@@ -46,6 +46,7 @@ const ACTIONS: CommandAction[] = [
   { label: "Memory Constellation", icon: Sparkles, href: "/constellation", group: "Navigate" },
   { label: "Sort Atlas", icon: Telescope, href: "/atlas", group: "Navigate" },
   { label: "Dashboard", icon: BarChart3, href: "/dashboard", group: "Navigate" },
+  { label: "Bots", icon: Bot, href: "/bots", group: "Navigate" },
   { label: "Live feed", icon: Activity, href: "/activity", group: "Navigate" },
   { label: "Search memory", icon: Search, href: "/search", group: "Navigate" },
   { label: "Traces (Langfuse)", icon: Microscope, href: "/traces", group: "Navigate" },
