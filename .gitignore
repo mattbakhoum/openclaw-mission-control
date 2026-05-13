@@ -24,3 +24,6 @@ backend/coverage.*
 backend/.coverage
 frontend/coverage
 backend/app/services/openclaw/.device-keys
+# FORGE-local build & deploy logs
+.build-*.log
+.deploy*.log

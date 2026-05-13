@@ -1,0 +1,62 @@
+# Forge-specific overrides for Mission Control.
+# - Joins the existing "net-work" docker network so it can reach openclaw-work:18789
+# - Binds host ports only on the Tailnet IP (100.97.16.19), no public exposure
+# - Renames the project containers so they read clearly in `docker ps`
+# - Adds restart: unless-stopped
+
+services:
+  db:
+    container_name: mission-control-db
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5532}:5432"
+    networks:
+      - default
+
+  redis:
+    container_name: mission-control-redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6479}:6379"
+    networks:
+      - default
+
+  backend:
+    container_name: mission-control-backend
+    restart: unless-stopped
+    image: openclaw-mission-control-backend:local
+    build: !reset null
+    env_file: !reset []
+    ports: !override
+      - "127.0.0.1:${BACKEND_PORT:-8100}:8000"
+    networks:
+      - default
+      - net-work
+
+  frontend:
+    container_name: mission-control-frontend
+    restart: unless-stopped
+    image: openclaw-mission-control-frontend:local
+    build: !reset null
+    env_file: !reset []
+    develop: !reset null
+    ports: !override
+      - "127.0.0.1:${FRONTEND_PORT:-3100}:3000"
+    networks:
+      - default
+
+  webhook-worker:
+    container_name: mission-control-worker
+    restart: unless-stopped
+    image: openclaw-mission-control-backend:local
+    build: !reset null
+    env_file: !reset []
+    networks:
+      - default
+      - net-work
+
+networks:
+  default:
+    name: mission-control_default
+  net-work:
+    external: true

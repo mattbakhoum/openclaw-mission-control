@@ -1,7 +1,7 @@
 "use client";
 
 import { ClerkProvider } from "@clerk/nextjs";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { isLikelyValidClerkPublishableKey } from "@/auth/clerkKey";
 import {
@@ -20,7 +20,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [localMode]);
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   if (localMode) {
+    if (!mounted) return null;
     if (!getLocalAuthToken()) {
       return <LocalAuthLogin />;
     }

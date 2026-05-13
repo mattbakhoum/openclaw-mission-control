@@ -3,7 +3,7 @@
 // NOTE: We intentionally keep this file very small and dependency-free.
 // It provides CI/secretless-build safe fallbacks for Clerk hooks/components.
 
-import type { ReactNode, ComponentProps } from "react";
+import { useEffect, useState, type ReactNode, type ComponentProps } from "react";
 
 import {
   ClerkProvider,
@@ -31,17 +31,39 @@ export function isClerkEnabled(): boolean {
   );
 }
 
+// In local-auth mode, getLocalAuthToken() reads window.localStorage, which is
+// undefined during SSR. This hook returns a stable token state that updates
+// after client mount, preventing SSR/CSR hydration mismatches where the
+// "signed out" branch persists across hydration even though the user has
+// a valid token.
+function useLocalAuthState() {
+  const [mounted, setMounted] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  useEffect(() => {
+    setMounted(true);
+    setToken(getLocalAuthToken());
+    const onStorage = () => setToken(getLocalAuthToken());
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+  return { mounted, token, hasToken: Boolean(token) };
+}
+
 export function SignedIn(props: { children: ReactNode }) {
+  const { mounted, hasToken } = useLocalAuthState();
   if (isLocalAuthMode()) {
-    return hasLocalAuthToken() ? <>{props.children}</> : null;
+    if (!mounted) return null;
+    return hasToken ? <>{props.children}</> : null;
   }
   if (!isClerkEnabled()) return null;
   return <ClerkSignedIn>{props.children}</ClerkSignedIn>;
 }
 
 export function SignedOut(props: { children: ReactNode }) {
+  const { mounted, hasToken } = useLocalAuthState();
   if (isLocalAuthMode()) {
-    return hasLocalAuthToken() ? null : <>{props.children}</>;
+    if (!mounted) return null;
+    return hasToken ? null : <>{props.children}</>;
   }
   if (!isClerkEnabled()) return <>{props.children}</>;
   return <ClerkSignedOut>{props.children}</ClerkSignedOut>;
@@ -61,10 +83,11 @@ export function SignOutButton(
 }
 
 export function useUser() {
+  const { mounted, hasToken } = useLocalAuthState();
   if (isLocalAuthMode()) {
     return {
-      isLoaded: true,
-      isSignedIn: hasLocalAuthToken(),
+      isLoaded: mounted,
+      isSignedIn: hasToken,
       user: null,
     } as const;
   }
@@ -75,10 +98,10 @@ export function useUser() {
 }
 
 export function useAuth() {
+  const { mounted, token } = useLocalAuthState();
   if (isLocalAuthMode()) {
-    const token = getLocalAuthToken();
     return {
-      isLoaded: true,
+      isLoaded: mounted,
       isSignedIn: Boolean(token),
       userId: token ? "local-user" : null,
       sessionId: token ? "local-session" : null,
