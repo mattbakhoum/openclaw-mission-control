@@ -48,6 +48,8 @@ const PROJECT_COLORS: Record<string, string> = {
   "private-vault": "#d68fb5", // dusty rose — private vault
   _root: "#a89ec8",       // muted lavender — shared root
   _obsidian: "#9bb55f",   // moss — Obsidian vault (legacy)
+  _notion: "#c1c3e8",     // cool lilac — pulled from Notion
+  _sort: "#c4b08a",       // sandstone — atlas/unsorted corpus
   _unscoped: "#6f5da8",
 };
 
