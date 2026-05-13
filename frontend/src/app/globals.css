@@ -3,26 +3,71 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
-  --bg: #f8fafc;
+  color-scheme: light dark;
+  /* Bakhoum OS palette — Anthropic-coral on warm cream, with dark-mode parity. */
+  --bg: #faf7f3;
   --surface: #ffffff;
-  --surface-muted: #f1f5f9;
-  --surface-strong: #e2e8f0;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --text-quiet: #94a3b8;
-  --accent: #2563eb;
-  --accent-strong: #1d4ed8;
-  --accent-soft: rgba(37, 99, 235, 0.12);
-  --success: #16a34a;
-  --warning: #d97706;
-  --danger: #dc2626;
+  --surface-muted: #f3eee7;
+  --surface-strong: #e9e1d4;
+  --border: #e7dfd3;
+  --border-strong: #d4c8b6;
+  --text: #1a1612;
+  --text-muted: #595047;
+  --text-quiet: #8a7e6d;
+  --accent: #c95f3a;
+  --accent-strong: #a8492a;
+  --accent-soft: rgba(201, 95, 58, 0.12);
+  --success: #2f7d4a;
+  --warning: #b8730e;
+  --danger: #b3331f;
   --shadow-panel:
-    0 1px 3px rgba(15, 23, 42, 0.12), 0 1px 2px rgba(15, 23, 42, 0.08);
+    0 1px 3px rgba(26, 22, 18, 0.08), 0 1px 2px rgba(26, 22, 18, 0.05);
   --shadow-card:
-    0 1px 2px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.06);
+    0 1px 2px rgba(26, 22, 18, 0.06), 0 2px 6px rgba(26, 22, 18, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14110d;
+    --surface: #1c1812;
+    --surface-muted: #211c15;
+    --surface-strong: #2a241c;
+    --border: #2e2820;
+    --border-strong: #3d3528;
+    --text: #f0ebe2;
+    --text-muted: #b3a895;
+    --text-quiet: #7a715f;
+    --accent: #e08560;
+    --accent-strong: #c95f3a;
+    --accent-soft: rgba(224, 133, 96, 0.16);
+    --success: #56b376;
+    --warning: #e2a045;
+    --danger: #e26851;
+    --shadow-panel:
+      0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-card:
+      0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #14110d;
+  --surface: #1c1812;
+  --surface-muted: #211c15;
+  --surface-strong: #2a241c;
+  --border: #2e2820;
+  --border-strong: #3d3528;
+  --text: #f0ebe2;
+  --text-muted: #b3a895;
+  --text-quiet: #7a715f;
+  --accent: #e08560;
+  --accent-strong: #c95f3a;
+  --accent-soft: rgba(224, 133, 96, 0.16);
+  --success: #56b376;
+  --warning: #e2a045;
+  --danger: #e26851;
+  --shadow-panel: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 body {

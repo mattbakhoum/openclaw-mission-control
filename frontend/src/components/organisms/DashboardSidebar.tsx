@@ -11,6 +11,7 @@ import {
   Folder,
   Building2,
   LayoutGrid,
+  Microscope,
   Network,
   Settings,
   Store,
@@ -58,14 +59,14 @@ export function DashboardSidebar() {
         : "System degraded";
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 flex w-[280px] -translate-x-full flex-col border-r border-slate-200 bg-white pt-16 shadow-lg transition-transform duration-200 ease-in-out [[data-sidebar=open]_&]:translate-x-0 md:relative md:inset-auto md:z-auto md:w-[260px] md:translate-x-0 md:pt-0 md:shadow-none md:transition-none">
+    <aside className="surface-panel fixed inset-y-0 left-0 z-40 flex w-[280px] -translate-x-full flex-col border-r pt-16 transition-transform duration-200 ease-in-out [[data-sidebar=open]_&]:translate-x-0 md:relative md:inset-auto md:z-auto md:w-[260px] md:translate-x-0 md:pt-0 md:transition-none">
       <div className="flex-1 px-3 py-4">
-        <p className="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <p className="px-3 text-xs font-semibold uppercase tracking-wider text-quiet">
           Navigation
         </p>
         <nav className="mt-3 space-y-4 text-sm">
           <div>
-            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-quiet">
               Overview
             </p>
             <div className="mt-1 space-y-1">
@@ -74,8 +75,8 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname === "/dashboard"
-                    ? "bg-blue-100 text-blue-800 font-medium"
-                    : "hover:bg-slate-100",
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
                 )}
               >
                 <BarChart3 className="h-4 w-4" />
@@ -86,18 +87,30 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/activity")
-                    ? "bg-blue-100 text-blue-800 font-medium"
-                    : "hover:bg-slate-100",
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
                 )}
               >
                 <Activity className="h-4 w-4" />
                 Live feed
               </Link>
+              <Link
+                href="/traces"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
+                  pathname.startsWith("/traces")
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
+                )}
+              >
+                <Microscope className="h-4 w-4" />
+                Traces
+              </Link>
             </div>
           </div>
 
           <div>
-            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-quiet">
               Boards
             </p>
             <div className="mt-1 space-y-1">
@@ -106,8 +119,8 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/board-groups")
-                    ? "bg-blue-100 text-blue-800 font-medium"
-                    : "hover:bg-slate-100",
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
                 )}
               >
                 <Folder className="h-4 w-4" />
@@ -118,8 +131,8 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/boards")
-                    ? "bg-blue-100 text-blue-800 font-medium"
-                    : "hover:bg-slate-100",
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
                 )}
               >
                 <LayoutGrid className="h-4 w-4" />
@@ -130,8 +143,8 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/tags")
-                    ? "bg-blue-100 text-blue-800 font-medium"
-                    : "hover:bg-slate-100",
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
                 )}
               >
                 <Tags className="h-4 w-4" />
@@ -142,8 +155,8 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/approvals")
-                    ? "bg-blue-100 text-blue-800 font-medium"
-                    : "hover:bg-slate-100",
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
                 )}
               >
                 <CheckCircle2 className="h-4 w-4" />
@@ -169,7 +182,7 @@ export function DashboardSidebar() {
           <div>
             {isAdmin ? (
               <>
-                <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-quiet">
                   Skills
                 </p>
                 <div className="mt-1 space-y-1">
@@ -204,7 +217,7 @@ export function DashboardSidebar() {
           </div>
 
           <div>
-            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-quiet">
               Administration
             </p>
             <div className="mt-1 space-y-1">
@@ -213,8 +226,8 @@ export function DashboardSidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-slate-700 transition",
                   pathname.startsWith("/organization")
-                    ? "bg-blue-100 text-blue-800 font-medium"
-                    : "hover:bg-slate-100",
+                    ? "bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] font-medium"
+                    : "text-muted hover:bg-[color:var(--surface-muted)]",
                 )}
               >
                 <Building2 className="h-4 w-4" />
@@ -252,8 +265,8 @@ export function DashboardSidebar() {
           </div>
         </nav>
       </div>
-      <div className="border-t border-slate-200 p-4">
-        <div className="flex items-center gap-2 text-xs text-slate-500">
+      <div className="border-t p-4">
+        <div className="flex items-center gap-2 text-xs text-muted">
           <span
             className={cn(
               "h-2 w-2 rounded-full",
