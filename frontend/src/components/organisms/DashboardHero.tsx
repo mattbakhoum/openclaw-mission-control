@@ -35,26 +35,70 @@ function syntheticSpark(seed: number, len = 18, slope = 0): SparkPoint[] {
 }
 
 export function DashboardHero() {
-  // Memory chunk count from the constellation.json snapshot (cheap proxy).
+  // Live data from /api/v1/live-metrics/* — falls back to the JSON snapshots
+  // if the API is unreachable so the dashboard still renders.
   const [memoryTotal, setMemoryTotal] = useState<number | null>(null);
   const [memoryProjects, setMemoryProjects] = useState<number | null>(null);
-  // Atlas (non-memory corpus) count from sort_atlas.json — may be 0 placeholder.
   const [atlasTotal, setAtlasTotal] = useState<number | null>(null);
+  const [tracesToday, setTracesToday] = useState<number | null>(null);
+  const [feedUnread, setFeedUnread] = useState<number | null>(null);
+  const [hourlyBuckets, setHourlyBuckets] = useState<number[]>([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    fetch("/constellation.json")
-      .then((r) => r.json())
-      .then((d) => {
-        setMemoryTotal(d?.stats?.total ?? 0);
-        setMemoryProjects(d?.stats?.projects?.length ?? 0);
-      })
-      .catch(() => setMemoryTotal(0));
-    fetch("/sort_atlas.json")
-      .then((r) => r.json())
-      .then((d) => setAtlasTotal(d?.stats?.total ?? 0))
-      .catch(() => setAtlasTotal(0));
+
+    const headers = (): HeadersInit => {
+      const t = typeof window !== "undefined" ? window.localStorage.getItem("mc_local_auth_token") : null;
+      return t ? { Authorization: `Bearer ${t}` } : {};
+    };
+
+    const pull = async () => {
+      // Memory count + atlas count (one call returns both collections)
+      try {
+        const r = await fetch("/api/v1/live-metrics/memory-count", { headers: headers() });
+        if (r.ok) {
+          const d = await r.json();
+          setMemoryTotal(d.counts?.bakhoum_ops_memory ?? null);
+          setAtlasTotal(d.counts?.sort_atlas ?? null);
+        }
+      } catch {}
+
+      // Project count from the JSON snapshot (cheap; not worth a backend endpoint).
+      try {
+        const r = await fetch("/constellation.json");
+        const d = await r.json();
+        setMemoryProjects(d?.stats?.projects?.length ?? null);
+      } catch {}
+
+      try {
+        const r = await fetch("/api/v1/live-metrics/trace-stats", { headers: headers() });
+        if (r.ok) {
+          const d = await r.json();
+          setTracesToday(d.traces_today ?? 0);
+        }
+      } catch {}
+
+      try {
+        const r = await fetch("/api/v1/live-metrics/feed-stats", { headers: headers() });
+        if (r.ok) {
+          const d = await r.json();
+          setFeedUnread(d.unread_count ?? null);
+        }
+      } catch {}
+
+      try {
+        const r = await fetch("/api/v1/live-metrics/bot-events-summary", { headers: headers() });
+        if (r.ok) {
+          const d = await r.json();
+          setHourlyBuckets(d.hourly_buckets_24h ?? []);
+        }
+      } catch {}
+    };
+
+    pull();
+    const id = setInterval(pull, 30_000);
+    return () => clearInterval(id);
   }, []);
 
   const tiles: Tile[] = useMemo(
@@ -81,20 +125,23 @@ export function DashboardHero() {
       },
       {
         label: "Trace events / day",
-        numericValue: 0,
-        delta: "Langfuse wired",
-        deltaTone: "neutral",
+        numericValue: tracesToday,
+        delta: tracesToday === 0 ? "Langfuse wired (idle)" : "live",
+        deltaTone: tracesToday && tracesToday > 0 ? "up" : "neutral",
         icon: Microscope,
         href: "/traces",
-        spark: syntheticSpark(42, 18, 0),
+        // hourly bot-event buckets as a real signal of liveness — the trace
+        // sparkline stays representative even when Langfuse is empty.
+        spark: hourlyBuckets.length
+          ? hourlyBuckets.map((v, i) => ({ i, v }))
+          : syntheticSpark(42, 18, 0),
         accent: "#c1c3e8",
       },
       {
-        label: "Feed articles",
-        numericValue: 157,
-        formatValue: (n) => `${n.toLocaleString()}+`,
-        delta: "28 active feeds",
-        deltaTone: "up",
+        label: "Feed unread",
+        numericValue: feedUnread,
+        delta: feedUnread === null ? "creds pending" : "FreshRSS",
+        deltaTone: feedUnread && feedUnread > 0 ? "up" : "neutral",
         icon: Newspaper,
         href: "/feeds",
         spark: syntheticSpark(91, 18, 2.0),

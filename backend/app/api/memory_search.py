@@ -289,7 +289,30 @@ async def memory_search(
                     merged.append(hit)
 
     merged.sort(key=lambda h: h.score, reverse=True)
-    return MemorySearchResponse(hits=merged[: body.limit])
+    final = merged[: body.limit]
+
+    # Log this query for the dashboard "queries today" + top-query widget.
+    # Fail-soft: a log-write blip should never kill a search response.
+    try:
+        from datetime import datetime, timezone
+        import json as _json, os as _os
+        from pathlib import Path as _Path
+        log_dir = _Path(_os.environ.get("METRICS_DIR", "/var/lib/metrics"))
+        log_dir.mkdir(parents=True, exist_ok=True)
+        line = _json.dumps({
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "query": body.query[:200],
+            "limit": body.limit,
+            "hits": len(final),
+            "projects": body.projects or [],
+            "collections": collections,
+        }) + "\n"
+        with (log_dir / "searches.jsonl").open("a", encoding="utf-8") as f:
+            f.write(line)
+    except Exception:
+        pass
+
+    return MemorySearchResponse(hits=final)
 
 
 @router.get(

@@ -26,14 +26,23 @@ services:
     restart: unless-stopped
     image: openclaw-mission-control-backend:local
     build: !reset null
-    env_file: !reset []
+    env_file:
+      - path: C:/Users/anvil/.secrets/notion.env
+        required: false
+      - path: C:/Users/anvil/.secrets/langfuse.env
+        required: false
+      - path: C:/Users/anvil/.secrets/freshrss.env
+        required: false
     ports: !override
       - "127.0.0.1:${BACKEND_PORT:-8100}:8000"
     volumes:
       - bot_events:/var/lib/bot-events:ro
+      - metric_data:/var/lib/metrics
     networks:
       - default
       - net-work
+      - rss-net
+      - langfuse-net
 
   frontend:
     container_name: mission-control-frontend
@@ -61,9 +70,16 @@ volumes:
   bot_events:
     external: true
     name: bot_events
+  metric_data:
+    name: metric_data
 
 networks:
   default:
     name: mission-control_default
   net-work:
     external: true
+  rss-net:
+    external: true
+  langfuse-net:
+    external: true
+    name: langfuse_langfuse-net
