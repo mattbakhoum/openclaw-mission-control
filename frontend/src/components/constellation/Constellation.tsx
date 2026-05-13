@@ -99,7 +99,8 @@ function NodeCloud({
       dummy.updateMatrix();
       meshRef.current!.setMatrixAt(i, dummy.matrix);
       colorObj.set(colorFor(n, colorMode));
-      if (hasSearch && !isMatch) colorObj.multiplyScalar(0.22);
+      if (hasSearch && !isMatch) colorObj.multiplyScalar(0.18);
+      else if (hasSearch && isMatch) colorObj.multiplyScalar(1.6); // pump bright on match
       meshRef.current!.setColorAt(i, colorObj);
     });
     meshRef.current.instanceMatrix.needsUpdate = true;
@@ -139,14 +140,12 @@ function NodeCloud({
         if (n) onSelect(n);
       }}
     >
-      <sphereGeometry args={[1, 24, 24]} />
-      <meshStandardMaterial
-        emissive={new THREE.Color("#ffffff")}
-        emissiveIntensity={0.9}
-        toneMapped={false}
-        roughness={0.4}
-        metalness={0.1}
-      />
+      <sphereGeometry args={[1, 20, 20]} />
+      {/* basic material so per-instance color (set via setColorAt) drives
+          luminance directly — bloom threshold + dim-on-non-match work the
+          way you'd expect. standard material's uniform emissive blew the
+          per-instance dim out. */}
+      <meshBasicMaterial toneMapped={false} />
     </instancedMesh>
   );
 }

@@ -18,6 +18,7 @@ import {
   Timer,
 } from "lucide-react";
 
+import { DashboardHero } from "@/components/organisms/DashboardHero";
 import { DashboardSidebar } from "@/components/organisms/DashboardSidebar";
 import { DashboardShell } from "@/components/templates/DashboardShell";
 import { Markdown } from "@/components/atoms/Markdown";
@@ -900,8 +901,9 @@ export default function DashboardPage() {
       </SignedOut>
       <SignedIn>
         <DashboardSidebar />
-        <main className="flex-1 overflow-y-auto bg-slate-50">
+        <main className="flex-1 overflow-y-auto bg-app">
           <div className="p-4 md:p-8">
+            <DashboardHero />
             {metricsQuery.error ? (
               <div className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">
                 Load failed: {metricsQuery.error.message}

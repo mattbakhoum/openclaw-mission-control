@@ -13,6 +13,7 @@ import {
   useGetMeApiV1UsersMeGet,
 } from "@/api/generated/users/users";
 import { BrandMark } from "@/components/atoms/BrandMark";
+import { ThemeToggle } from "@/components/atoms/ThemeToggle";
 import { CommandPalette } from "@/components/organisms/CommandPalette";
 import { OrgSwitcher } from "@/components/organisms/OrgSwitcher";
 import { SystemStatusStrip } from "@/components/organisms/SystemStatusStrip";
@@ -121,6 +122,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </SignedIn>
           <SignedIn>
             <div className="ml-auto flex items-center gap-3 px-4 md:px-6">
+              <ThemeToggle />
               <div className="hidden text-right lg:block">
                 <p className="text-sm font-semibold text-strong">
                   {displayName}
