@@ -94,13 +94,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-app text-strong" data-sidebar={sidebarOpen ? "open" : "closed"}>
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white shadow-sm">
+      <header className="sticky top-0 z-50 border-b backdrop-blur-md supports-[backdrop-filter]:bg-[color:var(--surface)]/80 bg-[color:var(--surface)]">
         <div className="flex items-center py-3">
           <div className="flex items-center px-4 md:px-6 md:w-[260px]">
             {isSignedIn ? (
               <button
                 type="button"
-                className="mr-3 rounded-lg p-2 text-slate-600 hover:bg-slate-100 md:hidden"
+                className="mr-3 rounded-lg p-2 text-muted hover:bg-[color:var(--surface-muted)] md:hidden"
                 onClick={toggleSidebar}
                 aria-label="Toggle navigation"
               >
@@ -119,15 +119,17 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <SignedIn>
             <div className="ml-auto flex items-center gap-3 px-4 md:px-6">
               <div className="hidden text-right lg:block">
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-sm font-semibold text-strong">
                   {displayName}
                 </p>
-                <p className="text-xs text-slate-500">Operator</p>
+                <p className="text-xs text-muted">Operator</p>
               </div>
               <UserMenu displayName={displayName} displayEmail={displayEmail} />
             </div>
           </SignedIn>
         </div>
+        {/* Accent strip under the header for the "agentic OS" hairline */}
+        <div className="h-px bg-gradient-to-r from-transparent via-[color:var(--accent)]/50 to-transparent" />
       </header>
 
       {/* Mobile sidebar overlay */}
@@ -140,7 +142,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         />
       ) : null}
 
-      <div className="grid min-h-[calc(100vh-64px)] grid-cols-1 md:grid-cols-[260px_1fr] bg-slate-50">
+      <div className="relative grid min-h-[calc(100vh-64px)] grid-cols-1 md:grid-cols-[260px_1fr] bg-app">
+        {/* Subtle dotted-grid backdrop on the content area */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.025] [background-image:radial-gradient(var(--text)_1px,transparent_1px)] [background-size:24px_24px]" />
         {children}
       </div>
     </div>
