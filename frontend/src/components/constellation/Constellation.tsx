@@ -57,8 +57,14 @@ const PROJECT_COLORS: Record<string, string> = {
   _plaud: "#d6a55f",      // caramel — Plaud audio-device transcripts
   "_claude-code-history": "#7ec0c6", // cyan — Claude Code session history
   _backtrack: "#a8c5a0",  // sage — Backtrack screen-history exports
+  _eldab: "#7a8eb8",      // steely blue — El Dab Game Collection (Jess's catalog; hidden by default)
   _unscoped: "#6f5da8",
 };
+
+// Projects that load with their cluster HIDDEN by default. Click the legend
+// pill to toggle on. Keeps the wow-demo view scoped to working memory rather
+// than swamping it with the 3,655-row El Dab game catalog.
+const DEFAULT_HIDDEN_PROJECTS = new Set<string>(["_eldab"]);
 
 const AGENT_COLORS: Record<string, string> = {
   canonical: "#e08560",
@@ -334,10 +340,16 @@ export function Constellation() {
     [hoveredId, data],
   );
 
-  // Project filter: which clusters are visible. Default = all on.
+  // Project filter: which clusters are visible. Default = all on EXCEPT
+  // anything in DEFAULT_HIDDEN_PROJECTS (currently just _eldab). Toggle in
+  // the legend.
   const [activeProjects, setActiveProjects] = useState<Set<string>>(new Set());
   useEffect(() => {
-    if (data) setActiveProjects(new Set(data.stats.projects));
+    if (data) {
+      setActiveProjects(
+        new Set(data.stats.projects.filter((p) => !DEFAULT_HIDDEN_PROJECTS.has(p))),
+      );
+    }
   }, [data]);
 
   // Search: substring match across preview + heading + project + source_path.
