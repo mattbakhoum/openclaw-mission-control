@@ -18,6 +18,7 @@ import {
   Sparkles,
   Store,
   Tags,
+  Telescope,
 } from "lucide-react";
 
 import {
@@ -42,6 +43,7 @@ type CommandAction = {
 
 const ACTIONS: CommandAction[] = [
   { label: "Memory Constellation", icon: Sparkles, href: "/constellation", group: "Navigate" },
+  { label: "Sort Atlas", icon: Telescope, href: "/atlas", group: "Navigate" },
   { label: "Dashboard", icon: BarChart3, href: "/dashboard", group: "Navigate" },
   { label: "Live feed", icon: Activity, href: "/activity", group: "Navigate" },
   { label: "Traces (Langfuse)", icon: Microscope, href: "/traces", group: "Navigate" },
