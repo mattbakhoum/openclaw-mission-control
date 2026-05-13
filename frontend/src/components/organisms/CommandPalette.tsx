@@ -45,6 +45,7 @@ const ACTIONS: CommandAction[] = [
   { label: "Dashboard", icon: BarChart3, href: "/dashboard", group: "Navigate" },
   { label: "Live feed", icon: Activity, href: "/activity", group: "Navigate" },
   { label: "Traces (Langfuse)", icon: Microscope, href: "/traces", group: "Navigate" },
+  { label: "Feeds (FreshRSS)", icon: Activity, href: "/feeds", group: "Navigate" },
   { label: "Board groups", icon: Folder, href: "/board-groups", group: "Navigate" },
   { label: "Boards", icon: LayoutGrid, href: "/boards", group: "Navigate" },
   { label: "Tags", icon: Tags, href: "/tags", group: "Navigate" },
