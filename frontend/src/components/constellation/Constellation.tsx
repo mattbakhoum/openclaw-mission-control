@@ -43,8 +43,11 @@ const PROJECT_COLORS: Record<string, string> = {
   cortez: "#c95fa5",      // magenta — Hermes-cortez fork
   household: "#e0c85f",   // amber — home/family
   salty: "#5f8ee0",       // blue — salty room
+  "home-vault": "#e8a25e", // warm orange — Obsidian home vault
+  "work-vault": "#7be0c8", // mint — Obsidian work vault (Bakhoum-CRM)
+  "private-vault": "#d68fb5", // dusty rose — private vault
   _root: "#a89ec8",       // muted lavender — shared root
-  _obsidian: "#9bb55f",   // moss — Obsidian vault
+  _obsidian: "#9bb55f",   // moss — Obsidian vault (legacy)
   _unscoped: "#6f5da8",
 };
 
