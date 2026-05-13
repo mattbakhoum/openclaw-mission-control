@@ -158,14 +158,11 @@ function NodeCloud({
         if (n) onSelect(n);
       }}
     >
-      <sphereGeometry args={[1, 24, 24]} />
-      <meshStandardMaterial
-        emissive={new THREE.Color("#ffffff")}
-        emissiveIntensity={0.9}
-        toneMapped={false}
-        roughness={0.4}
-        metalness={0.1}
-      />
+      <sphereGeometry args={[1, 18, 18]} />
+      {/* basic material so per-instance setColorAt actually drives luminance
+          and bloom — fixes the same uniform-emissive bug we hit on the
+          memory constellation. */}
+      <meshBasicMaterial toneMapped={false} />
     </instancedMesh>
   );
 }
