@@ -67,12 +67,14 @@ function NodeCloud({
   nodes,
   colorMode,
   hoveredId,
+  highlightedIds,
   onHover,
   onSelect,
 }: {
   nodes: Node[];
   colorMode: "project" | "agent";
   hoveredId: string | null;
+  highlightedIds: Set<string> | null;
   onHover: (id: string | null) => void;
   onSelect: (node: Node) => void;
 }) {
@@ -81,22 +83,26 @@ function NodeCloud({
   const colorObj = useMemo(() => new THREE.Color(), []);
   const baseScale = 0.95;
   const hoverScale = 2.0;
+  const dimScale = 0.55;
 
   useEffect(() => {
     if (!meshRef.current) return;
+    const hasSearch = highlightedIds !== null && highlightedIds.size > 0;
     nodes.forEach((n, i) => {
       dummy.position.set(n.x, n.y, n.z);
       const isHover = n.id === hoveredId;
-      const s = isHover ? hoverScale : baseScale;
+      const isMatch = hasSearch ? highlightedIds!.has(n.id) : true;
+      const s = isHover ? hoverScale : isMatch ? baseScale : dimScale;
       dummy.scale.set(s, s, s);
       dummy.updateMatrix();
       meshRef.current!.setMatrixAt(i, dummy.matrix);
       colorObj.set(colorFor(n, colorMode));
+      if (hasSearch && !isMatch) colorObj.multiplyScalar(0.22);
       meshRef.current!.setColorAt(i, colorObj);
     });
     meshRef.current.instanceMatrix.needsUpdate = true;
     if (meshRef.current.instanceColor) meshRef.current.instanceColor.needsUpdate = true;
-  }, [nodes, colorMode, hoveredId, dummy, colorObj]);
+  }, [nodes, colorMode, hoveredId, highlightedIds, dummy, colorObj]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -219,24 +225,39 @@ function AutoRotator({ enabled }: { enabled: boolean }) {
   return null;
 }
 
-function CameraTween({ target }: { target: Node | null }) {
+function CameraTween({
+  target,
+  searchCentroid,
+}: {
+  target: Node | null;
+  searchCentroid: { x: number; y: number; z: number } | null;
+}) {
   const { camera } = useThree();
   const goalRef = useRef<THREE.Vector3 | null>(null);
+  const lookAtRef = useRef<THREE.Vector3>(new THREE.Vector3());
   useEffect(() => {
     if (target) {
-      // Park camera ~25 units away from the node, along the same direction from origin.
+      // Park camera ~28 units off the node along the from-origin direction.
       const dir = new THREE.Vector3(target.x, target.y, target.z).normalize();
       goalRef.current = new THREE.Vector3(target.x, target.y, target.z).add(
         dir.multiplyScalar(28),
       );
+      lookAtRef.current.set(target.x, target.y, target.z);
+    } else if (searchCentroid) {
+      const c = new THREE.Vector3(searchCentroid.x, searchCentroid.y, searchCentroid.z);
+      // Camera sits a bit further away from a centroid (cluster view, not point view).
+      const dir = c.clone().normalize();
+      const offset = dir.multiplyScalar(60);
+      goalRef.current = c.clone().add(offset);
+      lookAtRef.current.copy(c);
     } else {
       goalRef.current = null;
     }
-  }, [target]);
+  }, [target, searchCentroid]);
   useFrame(() => {
     if (!goalRef.current) return;
     camera.position.lerp(goalRef.current, 0.06);
-    camera.lookAt(target ? new THREE.Vector3(target.x, target.y, target.z) : new THREE.Vector3());
+    camera.lookAt(lookAtRef.current);
     if (camera.position.distanceTo(goalRef.current) < 0.4) {
       goalRef.current = null;
     }
@@ -311,6 +332,37 @@ export function Constellation() {
     if (data) setActiveProjects(new Set(data.stats.projects));
   }, [data]);
 
+  // Search: substring match across preview + heading + project + source_path.
+  // Debounced 150ms so each keystroke doesn't trigger a re-render storm.
+  const [searchRaw, setSearchRaw] = useState("");
+  const [search, setSearch] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchRaw.trim().toLowerCase()), 150);
+    return () => clearTimeout(t);
+  }, [searchRaw]);
+
+  const highlightedIds = useMemo(() => {
+    if (!data || !search) return null;
+    const ids = new Set<string>();
+    for (const n of data.nodes) {
+      if (!activeProjects.has(n.project)) continue;
+      const haystack = `${n.preview} ${n.section_heading ?? ""} ${n.project} ${n.source_path ?? ""} ${n.tag ?? ""}`.toLowerCase();
+      if (haystack.includes(search)) ids.add(n.id);
+    }
+    return ids;
+  }, [data, search, activeProjects]);
+
+  const searchCentroid = useMemo(() => {
+    if (!highlightedIds || highlightedIds.size === 0 || !data) return null;
+    let sx = 0, sy = 0, sz = 0, c = 0;
+    for (const n of data.nodes) {
+      if (!highlightedIds.has(n.id)) continue;
+      sx += n.x; sy += n.y; sz += n.z; c += 1;
+    }
+    if (c === 0) return null;
+    return { x: sx / c, y: sy / c, z: sz / c };
+  }, [highlightedIds, data]);
+
   const visibleNodes = useMemo(() => {
     if (!data) return [];
     if (activeProjects.size === 0) return data.nodes;
@@ -348,6 +400,35 @@ export function Constellation() {
         <span className="mx-2 text-[color:rgba(224,133,96,0.7)]">·</span>v0.1
       </div>
 
+      {/* Search bar — top-center HUD, below wordmark */}
+      <div className="pointer-events-none absolute left-1/2 top-12 z-10 -translate-x-1/2">
+        <div className="pointer-events-auto flex items-center gap-2 rounded-lg border border-white/10 bg-black/50 px-3 py-1.5 backdrop-blur">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-white/40">find</span>
+          <input
+            type="text"
+            value={searchRaw}
+            onChange={(e) => setSearchRaw(e.target.value)}
+            placeholder="hubspot, kymber, voice corrections…"
+            className="w-72 bg-transparent text-[12px] text-white placeholder-white/30 outline-none"
+          />
+          {searchRaw ? (
+            <button
+              type="button"
+              onClick={() => setSearchRaw("")}
+              className="font-mono text-[10px] text-white/40 hover:text-white"
+              title="Clear"
+            >
+              ×
+            </button>
+          ) : null}
+          {highlightedIds ? (
+            <span className="font-mono text-[10px] tracking-widest text-[color:rgb(224,133,96)]">
+              {highlightedIds.size} hit{highlightedIds.size === 1 ? "" : "s"}
+            </span>
+          ) : null}
+        </div>
+      </div>
+
       <Canvas
         camera={{ position: [80, 40, 80], fov: 50, near: 0.1, far: 1000 }}
         dpr={[1, 2]}
@@ -377,6 +458,7 @@ export function Constellation() {
                 nodes={visibleNodes}
                 colorMode={colorMode}
                 hoveredId={hoveredId}
+                highlightedIds={highlightedIds}
                 onHover={setHoveredId}
                 onSelect={(n) => {
                   setSelected(n);
@@ -387,8 +469,8 @@ export function Constellation() {
           ) : null}
 
           <DustField />
-          <AutoRotator enabled={autoRotate && !hoveredId && !selected} />
-          <CameraTween target={selected} />
+          <AutoRotator enabled={autoRotate && !hoveredId && !selected && !searchCentroid} />
+          <CameraTween target={selected} searchCentroid={searchCentroid} />
 
           <EffectComposer multisampling={0}>
             <Bloom
