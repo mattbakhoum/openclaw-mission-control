@@ -29,6 +29,8 @@ services:
     env_file: !reset []
     ports: !override
       - "127.0.0.1:${BACKEND_PORT:-8100}:8000"
+    volumes:
+      - bot_events:/var/lib/bot-events:ro
     networks:
       - default
       - net-work
@@ -54,6 +56,11 @@ services:
     networks:
       - default
       - net-work
+
+volumes:
+  bot_events:
+    external: true
+    name: bot_events
 
 networks:
   default:

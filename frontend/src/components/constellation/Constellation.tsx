@@ -48,8 +48,15 @@ const PROJECT_COLORS: Record<string, string> = {
   "private-vault": "#d68fb5", // dusty rose — private vault
   _root: "#a89ec8",       // muted lavender — shared root
   _obsidian: "#9bb55f",   // moss — Obsidian vault (legacy)
-  _notion: "#c1c3e8",     // cool lilac — pulled from Notion
+  _notion: "#c1c3e8",     // cool lilac — pulled from Notion (live)
   _sort: "#c4b08a",       // sandstone — atlas/unsorted corpus
+  _omi: "#9bb8e0",        // sky blue — Omi wearable transcripts
+  "archive-vault": "#8a8a8a", // slate gray — archived vault (cold storage)
+  "_notion-export": "#b3b1d6", // darker lilac — legacy Notion md exports (distinct from live _notion)
+  _fireflies: "#e0bf5f",  // mustard — Fireflies meeting transcripts
+  _plaud: "#d6a55f",      // caramel — Plaud audio-device transcripts
+  "_claude-code-history": "#7ec0c6", // cyan — Claude Code session history
+  _backtrack: "#a8c5a0",  // sage — Backtrack screen-history exports
   _unscoped: "#6f5da8",
 };
 

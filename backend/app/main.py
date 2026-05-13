@@ -21,6 +21,7 @@ from app.api.board_memory import router as board_memory_router
 from app.api.board_onboarding import router as board_onboarding_router
 from app.api.board_webhooks import router as board_webhooks_router
 from app.api.boards import router as boards_router
+from app.api.bot_events import router as bot_events_router
 from app.api.gateway import router as gateway_router
 from app.api.gateways import router as gateways_router
 from app.api.metrics import router as metrics_router
@@ -65,6 +66,13 @@ OPENAPI_TAGS = [
     {
         "name": "activity",
         "description": "Activity feed and audit timeline endpoints across boards and operations.",
+    },
+    {
+        "name": "bot-events",
+        "description": (
+            "Live bot activity stream sourced from openclaw-* docker logs via "
+            "the bot-events-tap ring buffer. Server-Sent Events only."
+        ),
     },
     {
         "name": "gateways",
@@ -541,6 +549,7 @@ api_v1.include_router(auth_router)
 api_v1.include_router(agent_router)
 api_v1.include_router(agents_router)
 api_v1.include_router(activity_router)
+api_v1.include_router(bot_events_router)
 api_v1.include_router(gateway_router)
 api_v1.include_router(gateways_router)
 api_v1.include_router(metrics_router)

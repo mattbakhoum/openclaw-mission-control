@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import { ParticleBackdrop } from "@/components/atoms/ParticleBackdrop";
+import { BotActivityStream } from "@/components/organisms/BotActivityStream";
 import { DashboardHero } from "@/components/organisms/DashboardHero";
 import { DashboardSidebar } from "@/components/organisms/DashboardSidebar";
 import { DashboardShell } from "@/components/templates/DashboardShell";
@@ -906,6 +907,9 @@ export default function DashboardPage() {
           <ParticleBackdrop />
           <div className="relative p-4 md:p-8">
             <DashboardHero />
+            <div className="mt-4">
+              <BotActivityStream />
+            </div>
             {metricsQuery.error ? (
               <div className="mb-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">
                 Load failed: {metricsQuery.error.message}
