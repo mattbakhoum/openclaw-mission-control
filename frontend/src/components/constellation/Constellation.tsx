@@ -36,9 +36,15 @@ type ConstellationData = {
   nodes: Node[];
 };
 
+// Per-project palette — keep saturated, distinguishable, all readable on black.
 const PROJECT_COLORS: Record<string, string> = {
-  bakhoum_ops: "#e08560",
-  _root: "#8aa9d6",
+  bakhoum_ops: "#e08560", // coral — ops/business
+  hermes: "#5fc7a5",      // teal — default Hermes
+  cortez: "#c95fa5",      // magenta — Hermes-cortez fork
+  household: "#e0c85f",   // amber — home/family
+  salty: "#5f8ee0",       // blue — salty room
+  _root: "#a89ec8",       // muted lavender — shared root
+  _obsidian: "#9bb55f",   // moss — Obsidian vault
   _unscoped: "#6f5da8",
 };
 
